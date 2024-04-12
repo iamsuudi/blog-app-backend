@@ -1,13 +1,13 @@
 const { test, describe } = require('node:test');
 const assert = require('node:assert');
 
-const { totalLikes, favoriteBlog } = require('../utils/helper');
+const { totalLikes, favoriteBlog, mostBlogs } = require('../utils/helper');
 
 describe('Total likes', () => {
     test('zero blogs', () => {
         const blogs = [];
 
-        assert.strictEqual(totalLikes(blogs), 0)
+        assert.strictEqual(totalLikes(blogs), 0);
     });
 
     test('more blogs with string-values likes', () => {
@@ -41,7 +41,7 @@ describe('Total likes', () => {
 
         assert.strictEqual(totalLikes(blogs), 10);
     });
-})
+});
 
 describe('Favorite blog', () => {
     test('zero blogs return - N/A', () => {
@@ -51,7 +51,6 @@ describe('Favorite blog', () => {
     });
 
     test('Many blogs with one most favorite', () => {
-
         const favorite = {
             title: 'most favorite',
             likes: '3',
@@ -73,7 +72,6 @@ describe('Favorite blog', () => {
     });
 
     test('Many blogs with more than one most favorite', () => {
-
         const favorite1 = {
             title: 'first most favorite',
             likes: '3',
@@ -99,7 +97,68 @@ describe('Favorite blog', () => {
 
         const result = favoriteBlog(blogs);
 
-        assert(result.title === 'first most favorite' || result.title === 'second most favorite', 'Return one of the most favorite blogs');
+        assert(
+            result.title === 'first most favorite' ||
+                result.title === 'second most favorite',
+            'Return one of the most favorite blogs',
+        );
+    });
+});
+
+describe('Author with the most blogs', () => {
+    test('There are no blogs - N/A', () => {
+        const blogs = [];
+
+        assert.strictEqual(mostBlogs(blogs), 'N/A');
     });
 
-})
+    test('There is one blog so return the author', () => {
+        const blogs = [
+            {
+                title: 'javscript',
+                author: 'suudi',
+                url: 'iuoiu8',
+                likes: '12',
+            },
+        ];
+
+        assert.strictEqual(mostBlogs(blogs), 'suudi');
+    });
+
+    test('There is one most authored', () => {
+        const blogs = [
+            {
+                title: 'javscript',
+                author: 'suudi',
+                url: 'iuoiu8',
+                likes: '12',
+            },
+            {
+                title: 'typescript',
+                author: 'suudi',
+                url: 'iuoiu8',
+                likes: '12',
+            },
+            {
+                title: 'python',
+                author: 'suudi',
+                url: 'iuoiu8',
+                likes: '12',
+            },
+            {
+                title: 'python',
+                author: 'fato',
+                url: 'iuoiu8',
+                likes: '12',
+            },
+            {
+                title: 'python',
+                author: 'fato',
+                url: 'iuoiu8',
+                likes: '12',
+            },
+        ];
+
+        assert.strictEqual(mostBlogs(blogs), 'suudi');
+    });
+});
