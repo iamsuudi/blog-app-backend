@@ -1,7 +1,7 @@
 const { test, describe } = require('node:test');
 const assert = require('node:assert');
 
-const { totalLikes, favoriteBlog, mostBlogs } = require('../utils/helper');
+const { totalLikes, favoriteBlog, mostBlogs, mostLikes } = require('../utils/helper');
 
 describe('Total likes', () => {
     test('zero blogs', () => {
@@ -160,5 +160,63 @@ describe('Author with the most blogs', () => {
         ];
 
         assert.strictEqual(mostBlogs(blogs), 'suudi');
+    });
+});
+
+describe('Author with the most likes', () => {
+    test('There are no blogs - N/A', () => {
+        const blogs = [];
+
+        assert.strictEqual(mostLikes(blogs), 'N/A');
+    });
+
+    test('There is one blog so return the author', () => {
+        const blogs = [
+            {
+                title: 'javscript',
+                author: 'suudi',
+                url: 'iuoiu8',
+                likes: '12',
+            },
+        ];
+
+        assert.strictEqual(mostLikes(blogs), 'suudi');
+    });
+
+    test('There is one most author with most likes', () => {
+        const blogs = [
+            {
+                title: 'javscript',
+                author: 'suudi',
+                url: 'iuoiu8',
+                likes: '12',
+            },
+            {
+                title: 'typescript',
+                author: 'suudi',
+                url: 'iuoiu8',
+                likes: '5',
+            },
+            {
+                title: 'python',
+                author: 'suudi',
+                url: 'iuoiu8',
+                likes: '23',
+            },
+            {
+                title: 'python',
+                author: 'fato',
+                url: 'iuoiu8',
+                likes: '89',
+            },
+            {
+                title: 'python',
+                author: 'fato',
+                url: 'iuoiu8',
+                likes: '89',
+            },
+        ];
+
+        assert.strictEqual(mostLikes(blogs), 'fato');
     });
 });

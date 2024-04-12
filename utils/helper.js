@@ -1,5 +1,4 @@
 const _ = require('lodash');
-const logger = require('./logger');
 
 const findSum = (sum, blog) => sum + Number(blog.likes);
 
@@ -39,4 +38,25 @@ const mostBlogs = (blogs) => {
     }
 };
 
-module.exports = { totalLikes, favoriteBlog, mostBlogs };
+const mostLikes = (blogs) => {
+    switch (blogs.length) {
+        case 0:
+            return 'N/A';
+        case 1:
+            return blogs[0].author;
+        default: {
+            const rawGroup = _.groupBy(blogs, (blog) => blog.author);
+
+            const authors = Object.keys(rawGroup);
+
+            const finalroup = authors.map((author) => {
+                const likes = rawGroup[author].reduce((sum, post) => sum + Number(post.likes), 0);
+                return { author, likes };
+            });
+
+            return _.maxBy(finalroup, (person) => person.likes).author;
+        }
+    }
+}
+
+module.exports = { totalLikes, favoriteBlog, mostBlogs, mostLikes };
