@@ -3,18 +3,22 @@ const Blog = require('../models/blog');
 
 const blogController = express.Router();
 
-blogController.get('/', (req, res) => {
-    Blog.find({}).then(result => {
-        res.json(result);
-    })
+blogController.get('/', async (req, res) => {
+    const blogs = await Blog.find({});
+    
+    res.json(blogs);
 })
 
-blogController.post('/', (req, res) => {
+blogController.post('/', async (req, res, next) => {
     const newBlog = new Blog({...req.body});
 
-    newBlog.save().then(result=> {
-        res.status(201).json(result);
-    })
+    try {
+        const savedBlog = await newBlog.save();
+        res.status(201).json(savedBlog);
+    } catch (error) {
+        next(error);
+    }
+
 })
 
 module.exports = blogController;
