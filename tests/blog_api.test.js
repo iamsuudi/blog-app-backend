@@ -4,34 +4,18 @@ const mongoose = require('mongoose');
 const supertest = require('supertest');
 const app = require('../app');
 const Blog = require('../models/blog');
+const helper = require('./test_helper');
 
 const api = supertest(app);
 
-const initialBlogs = [
-    {
-        title: 'javascript is awesome lang',
-        author: 'suudi',
-        url: 'iuoiu8',
-        likes: '12',
-    },
-    {
-        title: 'typescript is admired lang',
-        author: 'fato',
-        url: 'iuoiu8',
-        likes: '5',
-    },
-];
-
 describe('Blog api', () => {
+
     beforeEach(async () => {
-        // console.log('before deleting', await api.get('/api/blogs').body.length);
         await Blog.deleteMany({});
-        // console.log('after deleting', await api.get('/api/blogs').body.length);
-        let blogObject = new Blog(initialBlogs[0]);
-        await blogObject.save();
-        blogObject = new Blog(initialBlogs[1]);
-        await blogObject.save();
-        // console.log('after populating', await api.get('/api/blogs').body.length);
+
+        for (let blog of helper.initialBlogs) {
+            await blog.save();
+        }
     });
 
     test('blogs are returned as json', async () => {
@@ -43,7 +27,7 @@ describe('Blog api', () => {
 
     test('there are two blogs', async () => {
         const response = await api.get('/api/blogs');
-        assert.strictEqual(response.body.length, initialBlogs.length);
+        assert.strictEqual(response.body.length, helper.initialBlogs.length);
     });
 
     test('the first blogs is about javascript lang', async () => {
@@ -71,7 +55,7 @@ describe('Blog api', () => {
 
         const contents = response.body.map(e => e.title);
 
-        assert.strictEqual(response.body.length, initialBlogs.length + 1);
+        assert.strictEqual(response.body.length, helper.initialBlogs.length + 1);
 
         assert(contents.includes('go is faster than python'));
     });
@@ -92,7 +76,7 @@ describe('Blog api', () => {
 
         const contents = response.body.map(e => e.title);
 
-        assert.strictEqual(response.body.length, initialBlogs.length);
+        assert.strictEqual(response.body.length, helper.initialBlogs.length);
 
         assert(!contents.includes('go is faster than python'));
     });
