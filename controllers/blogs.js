@@ -10,7 +10,11 @@ blogController.get('/', async (req, res) => {
 });
 
 blogController.post('/', async (req, res, next) => {
-    const newBlog = new Blog({ ...req.body });
+    const formatted = { ...req.body };
+
+    if (!formatted.likes) formatted.likes = '0';
+
+    const newBlog = new Blog({ ...formatted });
 
     try {
         const savedBlog = await newBlog.save();
@@ -26,8 +30,19 @@ blogController.get('/:id', async (req, res, next) => {
         if (blog) {
             res.json(blog);
         } else {
-            res.status(400).end();
+            // res.status(400).end();
+            next();
         }
+    } catch (error) {
+        next(error);
+    }
+});
+
+blogController.delete('/:id', async (req, res, next) => {
+    try {
+        const deleted = await Blog.findByIdAndDelete(req.params.id);
+        if (deleted) res.status(204).json(deleted);
+        else next();
     } catch (error) {
         next(error);
     }
