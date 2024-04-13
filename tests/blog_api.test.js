@@ -23,7 +23,6 @@ const initialBlogs = [
 ];
 
 describe('Blog api', () => {
-    
     beforeEach(async () => {
         // console.log('before deleting', await api.get('/api/blogs').body.length);
         await Blog.deleteMany({});
@@ -41,19 +40,42 @@ describe('Blog api', () => {
             .expect(200)
             .expect('Content-Type', /application\/json/);
     });
-    
+
     test('there are two blogs', async () => {
         const response = await api.get('/api/blogs');
         assert.strictEqual(response.body.length, initialBlogs.length);
     });
-    
+
     test('the first blogs is about javascript lang', async () => {
         const response = await api.get('/api/blogs');
-    
+
         const titles = response.body.map((e) => e.title);
         assert(titles.includes('javascript is awesome lang'));
     });
-})
+
+    test('a valid blog can be added', async () => {
+        const newBlog = {
+            title: 'go is faster than python',
+            author: 'abuki',
+            url: '7890',
+            likes: '',
+        };
+
+        await api
+            .post('/api/blogs')
+            .send(newBlog)
+            .expect(201)
+            .expect('Content-Type', /application\/json/);
+
+        const response = await api.get('/api/blogs');
+
+        const contents = response.body.map(e => e.title);
+
+        assert.strictEqual(response.body.length, initialBlogs.length + 1);
+
+        assert(contents.includes('go is faster than python'));
+    });
+});
 
 after(async () => {
     await mongoose.connection.close();
