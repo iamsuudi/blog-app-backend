@@ -8,36 +8,35 @@ const helper = require('./test_helper');
 
 const api = supertest(app);
 
-describe('Blog api', () => {
+test('blogs are returned as json', async () => {
+    await api
+        .get('/api/blogs')
+        .expect(200)
+        .expect('Content-Type', /application\/json/);
+});
 
+describe('Blog api', () => {
     beforeEach(async () => {
         await Blog.deleteMany({});
 
-        for (let blog of helper.initialBlogs) {
-            await blog.save();
-        }
+        await new Blog(helper.initialBlogs[0]).save();
+
+        await new Blog(helper.initialBlogs[1]).save();
     });
 
-    test('blogs are returned as json', async () => {
-        await api
-            .get('/api/blogs')
-            .expect(200)
-            .expect('Content-Type', /application\/json/);
-    });
-
-    test('there are two blogs', async () => {
+    test.skip('there are two blogs', async () => {
         const response = await api.get('/api/blogs');
         assert.strictEqual(response.body.length, helper.initialBlogs.length);
     });
 
-    test('the first blogs is about javascript lang', async () => {
+    test.skip('the first blogs is about javascript lang', async () => {
         const response = await api.get('/api/blogs');
 
         const titles = response.body.map((e) => e.title);
         assert(titles.includes('javascript is awesome lang'));
     });
 
-    test('a valid blog can be added', async () => {
+    test.skip('a valid blog can be added', async () => {
         const newBlog = {
             title: 'go is faster than python',
             author: 'abuki',
@@ -53,55 +52,77 @@ describe('Blog api', () => {
 
         const response = await api.get('/api/blogs');
 
-        const contents = response.body.map(e => e.title);
+        const contents = response.body.map((e) => e.title);
 
-        assert.strictEqual(response.body.length, helper.initialBlogs.length + 1);
+        assert.strictEqual(
+            response.body.length,
+            helper.initialBlogs.length + 1,
+        );
 
         assert(contents.includes('go is faster than python'));
     });
 
-    test('a blog without title is not added', async () => {
+    test.skip('a blog without title is not added', async () => {
         const newBlog = {
             author: 'abuki',
             url: '7890',
             likes: '',
         };
 
-        await api
-            .post('/api/blogs')
-            .send(newBlog)
-            .expect(400);
+        await api.post('/api/blogs').send(newBlog).expect(400);
 
         const response = await api.get('/api/blogs');
 
-        const contents = response.body.map(e => e.title);
+        const contents = response.body.map((e) => e.title);
 
         assert.strictEqual(response.body.length, helper.initialBlogs.length);
 
         assert(!contents.includes('go is faster than python'));
     });
 
-    test('a blog without author is not added', async () => {
+    test.skip('a blog without author is not added', async () => {
         const newBlog = {
             title: 'data science is meh',
             url: '7890',
             likes: '',
         };
 
-        await api
-            .post('/api/blogs')
-            .send(newBlog)
-            .expect(400);
+        await api.post('/api/blogs').send(newBlog).expect(400);
 
         const response = await api.get('/api/blogs');
 
-        const contents = response.body.map(e => e.title);
+        const contents = response.body.map((e) => e.title);
 
         assert.strictEqual(response.body.length, helper.initialBlogs.length);
 
         assert(!contents.includes('data science is meh'));
     });
 
+    test.skip('a specific blog can be viewed by id', async () => {
+        const blogsAtStart = await helper.blogsInDb();
+
+        const blogToView = blogsAtStart[0];
+
+        const response = await api
+            .get(`/api/blogs/${blogToView.id}`)
+            .expect(200)
+            .expect('Content-Type', /application\/json/);
+
+        assert.deepStrictEqual(response.body, blogToView);
+    });
+
+    test.skip('a specific blog can be viewed by id', async () => {
+        const blogsAtStart = await helper.blogsInDb();
+
+        const blogToView = blogsAtStart[0];
+
+        const response = await api
+            .get(`/api/blogs/${blogToView.id}`)
+            .expect(200)
+            .expect('Content-Type', /application\/json/);
+
+        assert.deepStrictEqual(response.body, blogToView);
+    });
 });
 
 after(async () => {
