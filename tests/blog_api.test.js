@@ -80,6 +80,28 @@ describe('Blog api', () => {
 
         assert(!contents.includes('go is faster than python'));
     });
+
+    test('a blog without author is not added', async () => {
+        const newBlog = {
+            title: 'data science is meh',
+            url: '7890',
+            likes: '',
+        };
+
+        await api
+            .post('/api/blogs')
+            .send(newBlog)
+            .expect(400);
+
+        const response = await api.get('/api/blogs');
+
+        const contents = response.body.map(e => e.title);
+
+        assert.strictEqual(response.body.length, helper.initialBlogs.length);
+
+        assert(!contents.includes('data science is meh'));
+    });
+
 });
 
 after(async () => {
