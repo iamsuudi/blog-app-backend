@@ -28,7 +28,7 @@ describe('when there is initially some blogs saved', () => {
     });
 
     describe('viewing a specific blog', () => {
-        test.skip('succeeds with a valid id', async () => {
+        test('succeeds with a valid id', async () => {
             const blogsAtStart = await helper.blogsInDb();
 
             const blogToView = blogsAtStart[0];
@@ -41,13 +41,13 @@ describe('when there is initially some blogs saved', () => {
             assert.deepStrictEqual(response.body, blogToView);
         });
 
-        test.skip('fails with 404 for non-existing valid-format id', async () => {
+        test('fails with 404 for non-existing valid-format id', async () => {
             const nonExistingId = await helper.nonExistingId();
 
             await api.get(`/api/blogs/${nonExistingId}`).expect(404);
         });
 
-        test.skip('fails with 400 for invalid-format id', async () => {
+        test('fails with 400 for invalid-format id', async () => {
             const invalidId = 'yuio7898ed';
 
             await api.get(`/api/blogs/${invalidId}`).expect(400);
@@ -55,7 +55,7 @@ describe('when there is initially some blogs saved', () => {
     });
 
     describe('addition of a new blog', () => {
-        test.skip('succeeds with a valid blog data', async () => {
+        test('succeeds with a valid blog data', async () => {
             const newBlog = {
                 title: 'go is faster than python',
                 author: 'abuki',
@@ -81,7 +81,7 @@ describe('when there is initially some blogs saved', () => {
             assert(contents.includes('go is faster than python'));
         });
 
-        test.skip('fails with 400 if title is missing', async () => {
+        test('fails with 400 if title is missing', async () => {
             const newBlog = {
                 author: 'abuki',
                 url: '7890',
@@ -102,7 +102,7 @@ describe('when there is initially some blogs saved', () => {
             assert(!contents.includes('go is faster than python'));
         });
 
-        test.skip('fails with 400 if author is missing', async () => {
+        test('fails with 400 if author is missing', async () => {
             const newBlog = {
                 title: 'data science is meh',
                 url: '7890',
@@ -123,7 +123,7 @@ describe('when there is initially some blogs saved', () => {
             assert(!contents.includes('data science is meh'));
         });
 
-        test.skip('if the likes property is missing, it defaults to 0', async () => {
+        test('if the likes property is missing, it defaults to 0', async () => {
             const blog = { title: 'nextjs', author: 'suudi' };
 
             await api.post('/api/blogs').send(blog).expect(201);
@@ -137,7 +137,7 @@ describe('when there is initially some blogs saved', () => {
     });
 
     describe('deletion of a blog', () => {
-        test.skip('succeeds with 204 for valid id', async () => {
+        test('succeeds with 204 for valid id', async () => {
             const blogsAtStart = await helper.blogsInDb();
 
             const blogToBeDeleted = blogsAtStart[0];
@@ -156,13 +156,13 @@ describe('when there is initially some blogs saved', () => {
             assert(!titles.includes(blogToBeDeleted.title));
         });
 
-        test.skip('fails with 404 for non-existing id', async () => {
+        test('fails with 404 for non-existing id', async () => {
             const nonExistingId = await helper.nonExistingId();
 
             await api.delete(`/api/blogs/${nonExistingId}`).expect(404);
         });
 
-        test.skip('fails with 400 for invalid-format id', async () => {
+        test('fails with 400 for invalid-format id', async () => {
             const inValidId = '897tuy';
 
             await api.delete(`/api/blogs/${inValidId}`).expect(400);
@@ -170,7 +170,7 @@ describe('when there is initially some blogs saved', () => {
     });
 
     describe('updating of a blog', async () => {
-        test.skip('succeeds for valid id', async () => {
+        test('succeeds for valid id', async () => {
             const blogsAtStart = await helper.blogsInDb();
 
             const blogBefore = {
@@ -188,7 +188,7 @@ describe('when there is initially some blogs saved', () => {
             assert(titles.includes(blogBefore.title));
         });
 
-        test.skip('fails with 404 for non-existing id', async () => {
+        test('fails with 404 for non-existing id', async () => {
             const nonExistingId = await helper.nonExistingId();
 
             const blogsAtStart = await helper.blogsInDb();
@@ -205,7 +205,7 @@ describe('when there is initially some blogs saved', () => {
                 .expect(404);
         });
 
-        test.skip('fails with 400 for invalid-format id', async () => {
+        test('fails with 400 for invalid-format id', async () => {
             const inValidId = '897tuy';
 
             const blogsAtStart = await helper.blogsInDb();

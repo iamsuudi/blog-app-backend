@@ -16,53 +16,38 @@ blogController.post('/', async (req, res, next) => {
 
     const newBlog = new Blog({ ...formatted });
 
-    try {
-        const savedBlog = await newBlog.save();
-        res.status(201).json(savedBlog);
-    } catch (error) {
-        next(error);
-    }
+    const savedBlog = await newBlog.save();
+    if (savedBlog) res.status(201).json(savedBlog);
+    next();
 });
 
 blogController.get('/:id', async (req, res, next) => {
-    try {
-        const blog = await Blog.findById(req.params.id);
-        if (blog) {
-            res.json(blog);
-        } else {
-            // res.status(400).end();
-            next();
-        }
-    } catch (error) {
-        next(error);
+    const blog = await Blog.findById(req.params.id);
+    if (blog) {
+        res.json(blog);
+    } else {
+        // res.status(400).end();
+        next();
     }
 });
 
 blogController.delete('/:id', async (req, res, next) => {
-    try {
-        const deleted = await Blog.findByIdAndDelete(req.params.id);
-        if (deleted) res.status(204).json(deleted);
-        else next();
-    } catch (error) {
-        next(error);
-    }
+    const deleted = await Blog.findByIdAndDelete(req.params.id);
+    if (deleted) res.status(204).json(deleted);
+    else next();
 });
 
 blogController.put('/:id', async (req, res, next) => {
-    try {
-        const blog = { ...req.body };
+    const blog = { ...req.body };
 
-        const updatedBlog = await Blog.findByIdAndUpdate(req.params.id, blog, {
-            new: true,
-            runValidators: true,
-        });
+    const updatedBlog = await Blog.findByIdAndUpdate(req.params.id, blog, {
+        new: true,
+        runValidators: true,
+    });
 
-        if (updatedBlog) return res.json(updatedBlog.toJSON());
+    if (updatedBlog) return res.json(updatedBlog.toJSON());
 
-        next();
-    } catch (error) {
-        next(error);
-    }
+    next();
 });
 
 module.exports = blogController;
