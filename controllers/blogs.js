@@ -48,4 +48,21 @@ blogController.delete('/:id', async (req, res, next) => {
     }
 });
 
+blogController.put('/:id', async (req, res, next) => {
+    try {
+        const blog = { ...req.body };
+
+        const updatedBlog = await Blog.findByIdAndUpdate(req.params.id, blog, {
+            new: true,
+            runValidators: true,
+        });
+
+        if (updatedBlog) return res.json(updatedBlog.toJSON());
+
+        next();
+    } catch (error) {
+        next(error);
+    }
+});
+
 module.exports = blogController;
