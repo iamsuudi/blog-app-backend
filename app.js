@@ -2,10 +2,11 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 require('express-async-errors');
-const blogController = require('./controllers/blogs');
 const middleware = require('./utils/middleware');
 const config = require('./utils/config');
 const logger = require('./utils/logger');
+const blogController = require('./controllers/blogs');
+const userController = require('./controllers/users');
 
 mongoose.set('strictQuery', false);
 
@@ -24,6 +25,7 @@ app.use(express.static('dist'));
 app.use(express.json());
 app.use(middleware.requestLogger);
 app.use('/api/blogs', blogController);
+app.use('/api/users', userController);
 app.use(middleware.unknownEndpoint);
 app.use(middleware.errorHandler);
 

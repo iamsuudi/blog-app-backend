@@ -1,23 +1,39 @@
 const express = require('express');
 const Blog = require('../models/blog');
+const User = require('../models/user');
 
 const blogController = express.Router();
 
 blogController.get('/', async (req, res) => {
     const blogs = await Blog.find({});
 
-    res.json(blogs);
+    res.status(200).json(blogs);
 });
 
 blogController.post('/', async (req, res, next) => {
-    const formatted = { ...req.body };
+    let { title, author, url, likes, userId } = req.body;
 
-    if (!formatted.likes) formatted.likes = '0';
+    const user = await User.findById(userId);
+    const { username, name, passwordHash, blogs } = user;
 
-    const newBlog = new Blog({ ...formatted });
+    if (!likes) likes = '0';
+
+    const newBlog = new Blog({ title, author, url, likes, user: userId });
 
     const savedBlog = await newBlog.save();
-    if (savedBlog) res.status(201).json(savedBlog);
+
+    if (savedBlog) {
+        await User.findByIdAndUpdate(userId, {
+            username,
+            name,
+            passwordHash,
+            blogs: blogs.concat(savedBlog._id),
+        });
+
+        const allblogs = await Blog.find({});
+
+        res.status(201).json(savedBlog);
+    }
     next();
 });
 
@@ -37,6 +53,7 @@ blogController.delete('/:id', async (req, res, next) => {
     else next();
 });
 
+/* eslint consistent-return: 0 */
 blogController.put('/:id', async (req, res, next) => {
     const blog = { ...req.body };
 
