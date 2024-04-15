@@ -6,7 +6,7 @@ const blogController = express.Router();
 blogController.get('/', async (req, res) => {
     const blogs = await Blog.find({});
 
-    res.json(blogs);
+    res.status(200).json(blogs);
 });
 
 blogController.post('/', async (req, res, next) => {
@@ -37,6 +37,7 @@ blogController.delete('/:id', async (req, res, next) => {
     else next();
 });
 
+/* eslint consistent-return: 0 */
 blogController.put('/:id', async (req, res, next) => {
     const blog = { ...req.body };
 
