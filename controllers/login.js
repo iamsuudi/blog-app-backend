@@ -3,16 +3,14 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const User = require('../models/user');
 const config = require('../utils/config');
-const logger = require('../utils/logger');
 
 const loginRouter = express.Router();
 
 loginRouter.post('/', async (req, res, next) => {
-
     const { username, password } = req.body;
 
     const user = await User.findOne({ username });
-    
+
     const passwordCorrect =
         user === null
             ? false
@@ -27,7 +25,7 @@ loginRouter.post('/', async (req, res, next) => {
         id: user._id,
     };
 
-    const token = jwt.sign(userForToken, config.SECRET, {expiresIn: 60*60});
+    const token = jwt.sign(userForToken, config.SECRET, { expiresIn: 60 * 60 });
 
     res.status(200).send({
         token,

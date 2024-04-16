@@ -19,15 +19,11 @@ blogController.post('/', async (req, res, next) => {
     const { title, author, url, userId } = req.body;
     let { likes } = req.body;
 
-    const decodedToken = jwt.verify(req.token, config.SECRET);
-
-    if (!decodedToken || decodedToken.id !== userId) {
-        // console.log('decoded id: ', typeof decodedToken.id, decodedToken.id);
-        // console.log('user id: ', typeof userId, userId);
+    if (!req.user || req.user !== userId) {
         return res.status(401).json({ error: 'token invalid' });
     }
 
-    const user = await User.findById(decodedToken.id);
+    const user = await User.findById(req.user);
 
     if (!likes) likes = '0';
 
@@ -36,13 +32,13 @@ blogController.post('/', async (req, res, next) => {
         author,
         url,
         likes,
-        user: decodedToken.id,
+        user: req.user,
     });
 
     const savedBlog = await newBlog.save();
 
     if (savedBlog) {
-        await User.findByIdAndUpdate(decodedToken.id, {
+        await User.findByIdAndUpdate(req.user, {
             username: user.username,
             name: user.name,
             passwordHash: user.passwordHash,
@@ -69,9 +65,7 @@ blogController.delete('/:id', async (req, res, next) => {
 
     const userId = blog.user.toString();
 
-    const decodedToken = jwt.verify(req.token, config.SECRET);
-
-    if (!decodedToken || decodedToken.id !== userId) {
+    if (!req.user || req.user !== userId) {
         // console.log('decoded id: ', typeof decodedToken.id, decodedToken.id);
         // console.log('user id: ', typeof userId, userId);
         return res.status(401).json({ error: 'token invalid' });

@@ -65,8 +65,6 @@ describe('when there is initially some blogs saved', () => {
                 .expect(200)
                 .expect('Content-Type', /application\/json/);
 
-            // console.log('user logged in:', loginResponse.body);
-
             const { token } = loginResponse.body;
 
             const newBlog = {
@@ -181,7 +179,7 @@ describe('when there is initially some blogs saved', () => {
                 .expect('Content-Type', /application\/json/);
 
             const blogToBeDeleted = savedResponse.body;
-            
+
             await api
                 .delete(`/api/blogs/${blogToBeDeleted.id}`)
                 .set('Authorization', `Bearer ${token}`)
