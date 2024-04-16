@@ -6,7 +6,11 @@ const config = require('../utils/config');
 const userController = express.Router();
 
 userController.get('/', async (req, res) => {
-    const users = await User.find({}).populate('Blog', {title: 1, url: 1, likes: 1});
+    const users = await User.find({}).populate('blogs', {
+        title: 1,
+        url: 1,
+        likes: 1,
+    });
 
     res.status(200).json(users);
 });
