@@ -14,6 +14,8 @@ userController.get('/', async (req, res) => {
 userController.post('/', async (req, res, next) => {
     const { username, name, password } = req.body;
 
+    if (!password) res.status(400).json({ error: 'password missing' });
+    
     const passwordHash = await bcrypt.hash(password, Number(config.saltRounds));
 
     const user = new User({

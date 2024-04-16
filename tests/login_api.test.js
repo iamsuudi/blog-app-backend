@@ -10,7 +10,7 @@ const User = require('../models/user');
 const api = supertest(app);
 
 describe('when there is already a root user created', () => {
-    beforeEach(async () => {
+/*     beforeEach(async () => {
         await User.deleteMany({});
 
         const { username, name, password } = helper.initialUsers[0];
@@ -23,7 +23,7 @@ describe('when there is already a root user created', () => {
         const user = new User({ username, name, passwordHash });
 
         await user.save();
-    });
+    }); */
 
     test('succeeds when the root user logs in', async () => {
         const user = {

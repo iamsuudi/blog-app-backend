@@ -62,6 +62,40 @@ describe('when there is initial one user in db', () => {
         const usersAtEnd = await helper.usersInDb();
         assert.strictEqual(usersAtEnd.length, usersAtStart.length);
     });
+
+    test('creation fails with proper status code if username is missing', async () => {
+        const usersAtStart = await helper.usersInDb();
+
+        const newUser = {
+            name: 'Abdulfetah Suudi',
+            password: 'iamsuudi',
+        };
+
+        await api
+            .post('/api/users')
+            .send(newUser)
+            .expect(400);
+
+        const usersAtEnd = await helper.usersInDb();
+        assert.strictEqual(usersAtEnd.length, usersAtStart.length);
+    });
+
+    test('creation fails with proper status code if password is missing', async () => {
+        const usersAtStart = await helper.usersInDb();
+
+        const newUser = {
+            username: 'abdu',
+            name: 'Abdulfetah Suudi',
+        };
+
+        await api
+            .post('/api/users')
+            .send(newUser)
+            .expect(400);
+
+        const usersAtEnd = await helper.usersInDb();
+        assert.strictEqual(usersAtEnd.length, usersAtStart.length);
+    });
 });
 
 after(async () => {

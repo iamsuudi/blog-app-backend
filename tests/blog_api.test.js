@@ -5,6 +5,7 @@ const supertest = require('supertest');
 const app = require('../app');
 const Blog = require('../models/blog');
 const helper = require('./test_helper');
+const User = require('../models/user');
 
 const api = supertest(app);
 
@@ -55,18 +56,31 @@ describe('when there is initially some blogs saved', () => {
     });
 
     describe('addition of a new blog', () => {
-        test('succeeds with a valid blog data', async () => {
+        test('succeeds with a user and valid blog data', async () => {
+            const user = await User.findOne({ username: 'root' });
+
+            const loginResponse = await api
+                .post('/api/login')
+                .send({ username: 'root', password: 'iamsuperuser' })
+                .expect(200)
+                .expect('Content-Type', /application\/json/);
+
+            // console.log('user logged in:', loginResponse.body);
+
+            const { token } = loginResponse.body;
+
             const newBlog = {
                 title: 'go is faster than python',
-                author: 'abuki',
+                author: 'Superuser',
                 url: '7890',
                 likes: '',
-                userId: '661cf44470750a092538e258'
+                userId: user._id.toString(),
             };
 
             await api
                 .post('/api/blogs')
                 .send(newBlog)
+                .set('Authorization', `Bearer ${token}`)
                 .expect(201)
                 .expect('Content-Type', /application\/json/);
 
