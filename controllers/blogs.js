@@ -15,7 +15,7 @@ const getTokenFrom = (request) => {
 const blogController = express.Router();
 
 blogController.get('/', async (req, res) => {
-    const blogs = await Blog.find({});
+    const blogs = await Blog.find({}).populate('User', {username: 1, name: 1});
 
     res.status(200).json(blogs);
 });
