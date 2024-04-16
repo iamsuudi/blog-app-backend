@@ -4,18 +4,13 @@ const Blog = require('../models/blog');
 const User = require('../models/user');
 const config = require('../utils/config');
 
-const getTokenFrom = (request) => {
-    const authorization = request.get('authorization');
-    if (authorization && authorization.startsWith('Bearer ')) {
-        return authorization.replace('Bearer ', '');
-    }
-    return null;
-};
-
 const blogController = express.Router();
 
 blogController.get('/', async (req, res) => {
-    const blogs = await Blog.find({}).populate('User', {username: 1, name: 1});
+    const blogs = await Blog.find({}).populate('user', {
+        username: 1,
+        name: 1,
+    });
 
     res.status(200).json(blogs);
 });
@@ -24,11 +19,11 @@ blogController.post('/', async (req, res, next) => {
     const { title, author, url, userId } = req.body;
     let { likes } = req.body;
 
-    const decodedToken = jwt.verify(getTokenFrom(req), config.SECRET);
+    const decodedToken = jwt.verify(req.token, config.SECRET);
 
     if (!decodedToken || decodedToken.id !== userId) {
-        console.log('decoded id: ',typeof decodedToken.id, decodedToken.id);
-        console.log('user id: ',typeof userId, userId);
+        // console.log('decoded id: ', typeof decodedToken.id, decodedToken.id);
+        // console.log('user id: ', typeof userId, userId);
         return res.status(401).json({ error: 'token invalid' });
     }
 
@@ -36,7 +31,13 @@ blogController.post('/', async (req, res, next) => {
 
     if (!likes) likes = '0';
 
-    const newBlog = new Blog({ title, author, url, likes, user: decodedToken.id });
+    const newBlog = new Blog({
+        title,
+        author,
+        url,
+        likes,
+        user: decodedToken.id,
+    });
 
     const savedBlog = await newBlog.save();
 
