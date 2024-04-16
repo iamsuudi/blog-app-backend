@@ -152,22 +152,46 @@ describe('when there is initially some blogs saved', () => {
     });
 
     describe('deletion of a blog', () => {
-        test.skip('succeeds with 204 for valid id', async () => {
+        test('succeeds with 204 for the right user and valid id', async () => {
             const blogsAtStart = await helper.blogsInDb();
 
-            const blogToBeDeleted = blogsAtStart[0];
+            const user = await User.findOne({ username: 'root' });
 
-            await api.delete(`/api/blogs/${blogToBeDeleted.id}`).expect(204);
+            const loginResponse = await api
+                .post('/api/login')
+                .send({ username: 'root', password: 'iamsuperuser' })
+                .expect(200)
+                .expect('Content-Type', /application\/json/);
+
+            const { token } = loginResponse.body;
+
+            const newBlog = {
+                title: 'go is faster than python',
+                author: 'Superuser',
+                url: '7890',
+                likes: '',
+                userId: user._id.toString(),
+            };
+
+            const savedResponse = await api
+                .post('/api/blogs')
+                .send(newBlog)
+                .set('Authorization', `Bearer ${token}`)
+                .expect(201)
+                .expect('Content-Type', /application\/json/);
+
+            const blogToBeDeleted = savedResponse.body;
+            
+            await api
+                .delete(`/api/blogs/${blogToBeDeleted.id}`)
+                .set('Authorization', `Bearer ${token}`)
+                .expect(204);
 
             const blogsAtEnd = await helper.blogsInDb();
 
-            assert.strictEqual(
-                blogsAtEnd.length,
-                helper.initialBlogs.length - 1,
-            );
-
             const titles = blogsAtEnd.map((e) => e.title);
 
+            assert.strictEqual(blogsAtStart.length, blogsAtEnd.length);
             assert(!titles.includes(blogToBeDeleted.title));
         });
 

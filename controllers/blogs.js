@@ -65,6 +65,18 @@ blogController.get('/:id', async (req, res, next) => {
 });
 
 blogController.delete('/:id', async (req, res, next) => {
+    const blog = await Blog.findById(req.params.id);
+
+    const userId = blog.user.toString();
+
+    const decodedToken = jwt.verify(req.token, config.SECRET);
+
+    if (!decodedToken || decodedToken.id !== userId) {
+        // console.log('decoded id: ', typeof decodedToken.id, decodedToken.id);
+        // console.log('user id: ', typeof userId, userId);
+        return res.status(401).json({ error: 'token invalid' });
+    }
+
     const deleted = await Blog.findByIdAndDelete(req.params.id);
     if (deleted) res.status(204).json(deleted);
     else next();
