@@ -5,7 +5,7 @@ const config = require('../utils/config');
 
 const userController = express.Router();
 
-userController.get('/', async (req, res, next) => {
+userController.get('/', async (req, res) => {
     const users = await User.find({});
 
     res.status(200).json(users);

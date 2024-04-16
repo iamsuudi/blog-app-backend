@@ -1,6 +1,16 @@
 const express = require('express');
+const jwt = require('jsonwebtoken');
 const Blog = require('../models/blog');
 const User = require('../models/user');
+const config = require('../utils/config');
+
+const getTokenFrom = (request) => {
+    const authorization = request.get('authorization');
+    if (authorization && authorization.startsWith('Bearer ')) {
+        return authorization.replace('Bearer ', '');
+    }
+    return null;
+};
 
 const blogController = express.Router();
 
@@ -11,26 +21,32 @@ blogController.get('/', async (req, res) => {
 });
 
 blogController.post('/', async (req, res, next) => {
-    let { title, author, url, likes, userId } = req.body;
+    const { title, author, url, userId } = req.body;
+    let { likes } = req.body;
 
-    const user = await User.findById(userId);
-    const { username, name, passwordHash, blogs } = user;
+    const decodedToken = jwt.verify(getTokenFrom(req), config.SECRET);
+
+    if (!decodedToken || decodedToken.id !== userId) {
+        console.log('decoded id: ',typeof decodedToken.id, decodedToken.id);
+        console.log('user id: ',typeof userId, userId);
+        return res.status(401).json({ error: 'token invalid' });
+    }
+
+    const user = await User.findById(decodedToken.id);
 
     if (!likes) likes = '0';
 
-    const newBlog = new Blog({ title, author, url, likes, user: userId });
+    const newBlog = new Blog({ title, author, url, likes, user: decodedToken.id });
 
     const savedBlog = await newBlog.save();
 
     if (savedBlog) {
-        await User.findByIdAndUpdate(userId, {
-            username,
-            name,
-            passwordHash,
-            blogs: blogs.concat(savedBlog._id),
+        await User.findByIdAndUpdate(decodedToken.id, {
+            username: user.username,
+            name: user.name,
+            passwordHash: user.passwordHash,
+            blogs: user.blogs.concat(savedBlog._id),
         });
-
-        const allblogs = await Blog.find({});
 
         res.status(201).json(savedBlog);
     }
