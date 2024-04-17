@@ -16,7 +16,10 @@ describe('when there is initial one user in db', () => {
 
         const { username, name, password } = helper.initialUsers[0];
 
-        const passwordHash = await bcrypt.hash(password, Number(config.saltRounds));
+        const passwordHash = await bcrypt.hash(
+            password,
+            Number(config.saltRounds),
+        );
 
         const user = new User({ username, name, passwordHash });
 
@@ -41,7 +44,7 @@ describe('when there is initial one user in db', () => {
         const usersAtEnd = await helper.usersInDb();
         assert.strictEqual(usersAtEnd.length, usersAtStart.length + 1);
 
-        const usernames = usersAtEnd.map(u => u.username);
+        const usernames = usersAtEnd.map((u) => u.username);
         assert(usernames.includes(newUser.username));
     });
 
@@ -54,10 +57,7 @@ describe('when there is initial one user in db', () => {
             password: 'iamsuudi',
         };
 
-        await api
-            .post('/api/users')
-            .send(newUser)
-            .expect(400);
+        await api.post('/api/users').send(newUser).expect(400);
 
         const usersAtEnd = await helper.usersInDb();
         assert.strictEqual(usersAtEnd.length, usersAtStart.length);
@@ -71,10 +71,7 @@ describe('when there is initial one user in db', () => {
             password: 'iamsuudi',
         };
 
-        await api
-            .post('/api/users')
-            .send(newUser)
-            .expect(400);
+        await api.post('/api/users').send(newUser).expect(400);
 
         const usersAtEnd = await helper.usersInDb();
         assert.strictEqual(usersAtEnd.length, usersAtStart.length);
@@ -88,10 +85,7 @@ describe('when there is initial one user in db', () => {
             name: 'Abdulfetah Suudi',
         };
 
-        await api
-            .post('/api/users')
-            .send(newUser)
-            .expect(400);
+        await api.post('/api/users').send(newUser).expect(400);
 
         const usersAtEnd = await helper.usersInDb();
         assert.strictEqual(usersAtEnd.length, usersAtStart.length);
@@ -100,4 +94,4 @@ describe('when there is initial one user in db', () => {
 
 after(async () => {
     await mongoose.connection.close();
-})
+});

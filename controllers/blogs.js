@@ -1,8 +1,6 @@
 const express = require('express');
-const jwt = require('jsonwebtoken');
 const Blog = require('../models/blog');
 const User = require('../models/user');
-const config = require('../utils/config');
 
 const blogController = express.Router();
 
