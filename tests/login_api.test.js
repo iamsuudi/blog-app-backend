@@ -1,31 +1,19 @@
 const { test, describe, beforeEach, after } = require('node:test');
 const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
 const supertest = require('supertest');
 const app = require('../app');
-const config = require('../utils/config');
 const helper = require('./test_helper');
-const User = require('../models/user');
 
 const api = supertest(app);
 
 describe('when there is already a root user created', () => {
-/*     beforeEach(async () => {
-        await User.deleteMany({});
+    beforeEach(async () => {
+        await helper.resetUsers();
 
-        const { username, name, password } = helper.initialUsers[0];
+        await helper.resetBlogs();
+    });
 
-        const passwordHash = await bcrypt.hash(
-            password,
-            Number(config.saltRounds),
-        );
-
-        const user = new User({ username, name, passwordHash });
-
-        await user.save();
-    }); */
-
-    test('succeeds when the root user logs in', async () => {
+    test('succeeds when the existing (regsitered) user logs in', async () => {
         const user = {
             username: 'root',
             password: 'iamsuperuser',
@@ -38,7 +26,7 @@ describe('when there is already a root user created', () => {
             .expect('Content-Type', /application\/json/);
     });
 
-    test('fails when the unknown user tries to login', async () => {
+    test('fails when the unknown (non registered) user tries to login', async () => {
         const user = {
             username: 'abdulfetah',
             password: 'iamsuudi',
