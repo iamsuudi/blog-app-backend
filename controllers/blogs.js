@@ -5,6 +5,11 @@ const User = require('../models/user');
 const blogController = express.Router();
 
 blogController.get('/', async (req, res) => {
+    if (!req.user) {
+        console.log('could not find the user');
+        return res.status(401).json({ error: 'token invalid' });
+    }
+
     const blogs = await Blog.find({}).populate('user', {
         username: 1,
         name: 1,
@@ -14,10 +19,11 @@ blogController.get('/', async (req, res) => {
 });
 
 blogController.post('/', async (req, res, next) => {
-    const { title, author, url, userId } = req.body;
+    const { title, author, url } = req.body;
     let { likes } = req.body;
 
-    if (!req.user || req.user !== userId) {
+    if (!req.user) {
+        console.log('could not find the user');
         return res.status(401).json({ error: 'token invalid' });
     }
 
