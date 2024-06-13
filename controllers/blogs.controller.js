@@ -1,7 +1,7 @@
 const Blog = require('../models/blog');
 const User = require('../models/user');
 
-export const getAllBlogs = async (req, res) => {
+const getAllBlogs = async (req, res) => {
     if (!req.user) {
         console.log('could not find the user');
         return res.status(401).json({ error: 'token invalid' });
@@ -15,7 +15,7 @@ export const getAllBlogs = async (req, res) => {
     res.status(200).json(blogs);
 };
 
-export const createBlog = async (req, res, next) => {
+const createBlog = async (req, res, next) => {
     const { title, author, url } = req.body;
     let { likes } = req.body;
 
@@ -51,7 +51,7 @@ export const createBlog = async (req, res, next) => {
     next();
 };
 
-export const getBlog = async (req, res, next) => {
+const getBlog = async (req, res, next) => {
     const blog = await Blog.findById(req.params.id);
 
     if (blog) {
@@ -62,7 +62,7 @@ export const getBlog = async (req, res, next) => {
     }
 };
 
-export const deleteBlog = async (req, res, next) => {
+const deleteBlog = async (req, res, next) => {
     const blog = await Blog.findById(req.params.id);
 
     if (!blog) next();
@@ -83,7 +83,7 @@ export const deleteBlog = async (req, res, next) => {
 };
 
 /* eslint consistent-return: 0 */
-export const updateBlog = async (req, res, next) => {
+const updateBlog = async (req, res, next) => {
     const blogExist = await Blog.findById(req.params.id);
 
     if (!blogExist) next();
@@ -105,4 +105,12 @@ export const updateBlog = async (req, res, next) => {
     if (updatedBlog) return res.json(updatedBlog.toJSON());
 
     next();
+};
+
+module.exports = {
+    updateBlog,
+    deleteBlog,
+    getBlog,
+    createBlog,
+    getAllBlogs,
 };

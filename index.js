@@ -4,4 +4,4 @@ const config = require('./utils/config');
 
 app.listen(config.PORT, () => {
     logger.info(`Blog app server listening on ${config.PORT}`);
-})
+});

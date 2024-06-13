@@ -4,20 +4,20 @@ const User = require('../models/user');
 const config = require('../utils/config');
 
 /* eslint consistent-return: 0, no-underscore-dangle: 0 */
-export const signin = async (req, res) => {
-    const { username, password } = req.body;
+const signin = async (req, res) => {
+    const { email, password } = req.body;
 
-    const user = await User.findOne({ username });
+    const user = await User.findOne({ email });
 
     const passwordCorrect =
         user === null ? false : bcrypt.compare(password, user.passwordHash);
 
     if (!(user && passwordCorrect)) {
-        return res.status(401).json({ error: 'invalid username or password' });
+        return res.status(401).json({ error: 'invalid email or password' });
     }
 
     const userForToken = {
-        username: user.username,
+        email: user.email,
         id: user._id,
     };
 
@@ -25,27 +25,32 @@ export const signin = async (req, res) => {
 
     res.status(200).send({
         token,
-        username: user.username,
+        email: user.email,
         name: user.name,
     });
 };
 
-export const signup = async (req, res, next) => {
-    const { username, name, password } = req.body;
+const signup = async (req, res, next) => {
+    const { email, password } = req.body;
 
     if (!password) res.status(400).json({ error: 'password missing' });
 
-    const passwordHash = await bcrypt.hash(password, Number(config.saltRounds));
+    const passwordHash = await bcrypt.hash(
+        password,
+        Number(config.SALT_ROUNDS),
+    );
 
-    const user = new User({
-        username,
-        name,
+    const user = await User.create({
+        email,
         passwordHash,
     });
 
-    const savedUser = await user.save();
-
-    if (savedUser) res.status(201).json(savedUser);
+    if (user) return res.status(201).json(user);
 
     next();
+};
+
+module.exports = {
+    signin,
+    signup,
 };
