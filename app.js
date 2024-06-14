@@ -2,6 +2,8 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 require('express-async-errors');
+const session = require('express-session');
+const passport = require('passport');
 
 const config = require('./utils/config');
 const logger = require('./utils/logger');
@@ -30,7 +32,20 @@ const app = express();
 app.use(cors());
 app.use(express.static('dist'));
 app.use(express.json());
+app.use(
+    session({
+        secret: config.SECRET,
+        resave: false,
+        saveUninitialized: false,
+        cookie: {
+            maxAge: 1000 * 60,
+        },
+    }),
+);
+app.use(passport.session());
+app.use(express.urlencoded({ extended: false }));
 app.use(requestLogger);
+require('./auth/authenticator');
 
 app.use('/api', userRouter, blogRouter, loginRouter);
 
