@@ -4,6 +4,7 @@ const cors = require('cors');
 require('express-async-errors');
 const session = require('express-session');
 const passport = require('passport');
+const MongoStore = require('connect-mongo');
 
 const config = require('./utils/config');
 const logger = require('./utils/logger');
@@ -29,7 +30,12 @@ mongoose
 
 const app = express();
 
-app.use(cors());
+app.use(
+    cors({
+        origin: 'http://localhost:5173', // React app's URL
+        credentials: true,
+    }),
+);
 app.use(express.static('dist'));
 app.use(express.json());
 app.use(
@@ -40,6 +46,9 @@ app.use(
         cookie: {
             maxAge: 1000 * 60,
         },
+        store: MongoStore.create({
+            client: mongoose.connection.getClient(),
+        }),
     }),
 );
 app.use(passport.session());

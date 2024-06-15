@@ -25,13 +25,15 @@ module.exports = passport.use(
         async (email, password, done) => {
             try {
                 const user = await User.findOne({ email });
-                if (!user) throw new Error('Incorrect email');
+                if (!user)
+                    return done(null, false, { message: 'Incorrect email' });
 
-                const passwordCorrect = bcrypt.compare(
+                const passwordCorrect = await bcrypt.compare(
                     password,
                     user.passwordHash,
                 );
-                if (!passwordCorrect) throw new Error('Incorrect password');
+                if (!passwordCorrect)
+                    return done(null, false, { message: 'Incorrect password' });
 
                 return done(null, user);
             } catch (error) {
