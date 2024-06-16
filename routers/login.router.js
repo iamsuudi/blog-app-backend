@@ -10,7 +10,15 @@ loginRouter.post('/auth/signin', passport.authenticate('local'), (req, res) => {
     console.log({ user: req.user });
     return res.status(200).send('User is authenticated');
 });
-loginRouter.post('/auth/signup', loginController.signup);
+loginRouter.post(
+    '/auth/signup',
+    loginController.signup,
+    passport.authenticate('local'),
+    (req, res) => {
+        console.log({ user: req.user });
+        return res.status(200).send('User is authenticated');
+    },
+);
 loginRouter.get('/auth/status', (req, res) => {
     console.log('Inside suth status end point');
     console.log(req.user);
