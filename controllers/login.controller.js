@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const User = require('../models/user');
 const config = require('../utils/config');
+const logger = require('../utils/logger');
 
 /* eslint consistent-return: 0, no-underscore-dangle: 0 */
 const signin = async (req, res) => {
@@ -45,12 +46,35 @@ const signup = async (req, res, next) => {
         passwordHash,
     });
 
-    // if (user) return res.status(201).json(user);
+    next(user);
+};
 
-    next();
+const status = async (req, res) => {
+    logger.info('Inside suth status end point');
+    logger.info(req.user);
+    logger.info(req.session);
+    return req.user
+        ? res.status(200).json(req.user)
+        : res.status(401).send('Unauthorized');
+};
+
+const logout = async (req, res) => {
+    if (!req.user) return res.sendStatus(401);
+    req.logout((error) => {
+        if (error) return res.sendStatus(400);
+        res.sendStatus(200);
+    });
+};
+
+const authResponse = async (req, res) => {
+    logger.info({ user: req.user });
+    return res.status(200).send('User is authenticated');
 };
 
 module.exports = {
     signin,
     signup,
+    status,
+    logout,
+    authResponse,
 };

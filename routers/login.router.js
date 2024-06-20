@@ -4,35 +4,49 @@ const loginController = require('../controllers/login.controller');
 
 const loginRouter = express.Router();
 
-// loginRouter.post('/signin', loginController.signin);
-// loginRouter.post('/signup', loginController.signup);
-loginRouter.post('/auth/signin', passport.authenticate('local'), (req, res) => {
-    console.log({ user: req.user });
-    return res.status(200).send('User is authenticated');
+loginRouter.post(
+    '/auth/signin',
+    passport.authenticate('local'),
+    loginController.authResponse,
+);
+
+loginRouter.get('/login/failed', (req, res) => {
+    res.status(401).json({
+        success: false,
+        message: 'failed',
+    });
 });
+
+loginRouter.get('/login/success', (req, res) => {
+    res.status(401).json({
+        success: true,
+        message: 'success',
+    });
+});
+
+loginRouter.get(
+    '/auth/signin/google',
+    passport.authenticate('google', { scope: ['profile', 'email'] }),
+);
+
+loginRouter.get(
+    '/auth/google/redirect',
+    passport.authenticate('google', {
+        successRedirect: 'http://localhost:5173/auth/status',
+        failureRedirect: '/login/failed',
+    }),
+    loginController.authResponse,
+);
+
 loginRouter.post(
     '/auth/signup',
     loginController.signup,
     passport.authenticate('local'),
-    (req, res) => {
-        console.log({ user: req.user });
-        return res.status(200).send('User is authenticated');
-    },
+    loginController.authResponse,
 );
-loginRouter.get('/auth/status', (req, res) => {
-    console.log('Inside suth status end point');
-    console.log(req.user);
-    console.log(req.session);
-    return req.user
-        ? res.status(200).json(req.user)
-        : res.status(401).send('Unauthorized');
-});
-loginRouter.post('/auth/logout', (req, res) => {
-    if (!req.user) return res.sendStatus(401);
-    req.logout((error) => {
-        if (error) return res.sendStatus(400);
-        res.sendStatus(200);
-    });
-});
+
+/* eslint consistent-return: 0 */
+loginRouter.get('/auth/status', loginController.status);
+loginRouter.post('/auth/logout', loginController.logout);
 
 module.exports = loginRouter;
