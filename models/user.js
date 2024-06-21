@@ -1,9 +1,12 @@
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
-    name: String,
+    given_name: String,
+    family_name: String,
     email: String,
+    github: String,
     passwordHash: String,
+    picture: String,
 });
 
 userSchema.virtual('id', async function () {
