@@ -38,6 +38,20 @@ loginRouter.get(
     loginController.authResponse,
 );
 
+loginRouter.get(
+    '/auth/signin/github',
+    passport.authenticate('github', { scope: ['profile', 'email'] }),
+);
+
+loginRouter.get(
+    '/auth/github/redirect',
+    passport.authenticate('github', {
+        successRedirect: 'http://localhost:5173/auth/status',
+        failureRedirect: '/login/failed',
+    }),
+    loginController.authResponse,
+);
+
 loginRouter.post(
     '/auth/signup',
     loginController.signup,

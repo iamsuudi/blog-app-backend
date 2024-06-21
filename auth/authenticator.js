@@ -2,6 +2,7 @@ const passport = require('passport');
 const bcrypt = require('bcrypt');
 const LocalStrategy = require('passport-local').Strategy;
 const { Strategy: GoogleStrategy } = require('passport-google-oauth2');
+const { Strategy: GithubStrategy } = require('passport-github2');
 const User = require('../models/user');
 const logger = require('../utils/logger');
 const config = require('../utils/config');
@@ -21,7 +22,7 @@ passport.deserializeUser(async (id, done) => {
     }
 });
 
-/* eslint prefer-arrow-callback: 0 */
+/* eslint prefer-arrow-callback: 0 camelcase: 0 */
 passport.use(
     new GoogleStrategy(
         {
@@ -33,14 +34,47 @@ passport.use(
             try {
                 // Get user's email from profile
 
-                const { email } = profile;
+                const { email, given_name, family_name } = profile;
 
                 let user = await User.findOne({ email });
 
                 if (!user) {
                     user = new User({
-                        name: profile.displayName,
+                        given_name,
+                        family_name,
                         email,
+                    });
+                    await user.save();
+                }
+
+                done(null, user);
+            } catch (err) {
+                done(err, null);
+            }
+        },
+    ),
+);
+
+/* eslint prefer-arrow-callback: 0 */
+passport.use(
+    new GithubStrategy(
+        {
+            clientID: config.GITHUB_CLIENT_ID,
+            clientSecret: config.GITHUB_CLIENT_SECRET,
+            callbackURL: '/api/auth/github/redirect',
+        },
+        async function verify(accessToken, refreshToken, profile, done) {
+            try {
+                // Get user's email from profile
+                const { profileUrl, displayName } = profile;
+
+                let user = await User.findOne({ github: profileUrl });
+
+                if (!user) {
+                    user = new User({
+                        github: profileUrl,
+                        given_name: displayName.split(' ')[0] || '',
+                        family_name: displayName.split(' ')[1] || '',
                     });
                     await user.save();
                 }

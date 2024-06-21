@@ -44,7 +44,7 @@ app.use(
         resave: false,
         saveUninitialized: false,
         cookie: {
-            maxAge: 1000 * 60,
+            maxAge: 1000 * 10,
         },
         store: MongoStore.create({
             client: mongoose.connection.getClient(),
