@@ -1,110 +1,84 @@
 const Blog = require('../models/blog');
-const User = require('../models/user');
 
 const getAllBlogs = async (req, res) => {
-    if (!req.user) {
-        console.log('could not find the user');
-        return res.status(401).json({ error: 'token invalid' });
+    const { user } = req;
+    let blogs;
+
+    if (!user) {
+        blogs = await Blog.find({});
+    } else {
+        blogs = await Blog.find({}).populate('user');
     }
 
-    const blogs = await Blog.find({}).populate('user', {
-        username: 1,
-        name: 1,
-    });
-
-    res.status(200).json(blogs);
+    return res.status(200).json(blogs);
 };
 
-const createBlog = async (req, res, next) => {
+const createBlog = async (req, res) => {
     const { title, author, url } = req.body;
-    let { likes } = req.body;
+    const { user } = req;
 
-    if (!req.user) {
-        console.log('could not find the user');
-        return res.status(401).json({ error: 'token invalid' });
-    }
-
-    const user = await User.findById(req.user);
-
-    if (!likes) likes = 0;
-
-    const newBlog = new Blog({
+    const savedBlog = await Blog.create({
         title,
         author,
         url,
-        likes,
-        user: req.user,
+        user: user._id,
     });
 
-    const savedBlog = await newBlog.save();
+    /*     await User.findByIdAndUpdate(req.user, {
+        username: user.username,
+        name: user.name,
+        passwordHash: user.passwordHash,
+        blogs: user.blogs.concat(savedBlog._id),
+    }); */
 
-    if (savedBlog) {
-        await User.findByIdAndUpdate(req.user, {
-            username: user.username,
-            name: user.name,
-            passwordHash: user.passwordHash,
-            blogs: user.blogs.concat(savedBlog._id),
-        });
-
-        res.status(201).json(savedBlog);
-    }
-    next();
+    res.status(201).json(savedBlog);
 };
 
-const getBlog = async (req, res, next) => {
-    const blog = await Blog.findById(req.params.id);
+const getBlog = async (req, res) => {
+    const { user } = req;
+    const { blogId } = req.params;
 
-    if (blog) {
-        res.json(blog);
+    let blog;
+
+    if (!user) {
+        blog = await Blog.findById(blogId);
     } else {
-        // res.status(400).end();
-        next();
+        blog = await Blog.findById(blogId).populate('user');
     }
+
+    return res.status(200).json(blog);
 };
 
-const deleteBlog = async (req, res, next) => {
-    const blog = await Blog.findById(req.params.id);
+const deleteBlog = async (req, res) => {
+    const { user } = req;
+    const { blogId } = req.params;
 
-    if (!blog) next();
+    const blog = await Blog.findById(blogId);
 
-    const userId = blog.user.toString();
-
-    if (!req.user || req.user !== userId) {
-        // console.log('decoded id: ', typeof decodedToken.id, decodedToken.id);
-        // console.log('user id: ', typeof userId, userId);
-        return res.status(401).json({ error: 'token invalid' });
+    if (user._id.toString() !== blog.user.toString()) {
+        return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    const deleted = await Blog.findByIdAndDelete(req.params.id);
+    await Blog.findByIdAndDelete(blogId);
 
-    if (deleted) res.status(204).json(deleted);
-
-    next();
+    return res.status(204).json({ message: 'Deleted' });
 };
 
 /* eslint consistent-return: 0 */
-const updateBlog = async (req, res, next) => {
-    const blogExist = await Blog.findById(req.params.id);
+const updateBlog = async (req, res) => {
+    const { user } = req;
+    const { blogId } = req.params;
+    const update = req.body;
 
-    if (!blogExist) next();
+    const blog = await Blog.findById({ blogId });
 
-    const blog = { ...req.body };
-
-    const userId = blogExist.user.toString();
-
-    if (!req.user || req.user !== userId) {
-        // console.log('decoded id: ', typeof decodedToken.id, decodedToken.id);
-        // console.log('user id: ', typeof userId, userId);
-        return res.status(401).json({ error: 'token invalid' });
+    if (user._id.toString() !== blog.user.toString()) {
+        return res.status(401).json({ error: 'Unauthorized' });
     }
-    const updatedBlog = await Blog.findByIdAndUpdate(req.params.id, blog, {
-        new: true,
-        runValidators: true,
-    });
 
-    if (updatedBlog) return res.json(updatedBlog.toJSON());
+    const updatedBlog = await Blog.findByIdAndUpdate(blogId, update);
 
-    next();
+    return res.json(updatedBlog.toJSON());
 };
 
 module.exports = {

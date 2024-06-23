@@ -4,13 +4,20 @@ const userSchema = new mongoose.Schema({
     given_name: String,
     family_name: String,
     email: String,
+    title: String,
     github: String,
     passwordHash: String,
     picture: String,
 });
 
-userSchema.virtual('id', async function () {
-    return this._id.toString();
+/* eslint no-param-reassign: 0, no-underscore-dangle: 0 */
+userSchema.set('toJSON', {
+    transform: (document, returnedObject) => {
+        returnedObject.id = returnedObject._id.toString();
+        delete returnedObject._id;
+        delete returnedObject.__v;
+        delete returnedObject.passwordHash;
+    },
 });
 
 const User = mongoose.model('User', userSchema);
