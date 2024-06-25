@@ -1,11 +1,12 @@
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
-    given_name: String,
-    family_name: String,
+    givenName: String,
+    familyName: String,
     email: String,
     title: String,
     github: String,
+    githubId: String,
     passwordHash: String,
     picture: String,
 });
@@ -17,6 +18,7 @@ userSchema.set('toJSON', {
         delete returnedObject._id;
         delete returnedObject.__v;
         delete returnedObject.passwordHash;
+        delete returnedObject.githubId;
     },
 });
 

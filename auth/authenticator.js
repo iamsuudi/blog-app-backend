@@ -34,15 +34,15 @@ passport.use(
             try {
                 // Get user's email from profile
 
-                const { email, given_name, family_name } = profile;
+                const { email, name, picture } = profile;
 
                 let user = await User.findOne({ email });
 
                 if (!user) {
                     user = new User({
-                        given_name,
-                        family_name,
+                        ...name,
                         email,
+                        picture,
                     });
                     await user.save();
                 }
@@ -55,6 +55,40 @@ passport.use(
     ),
 );
 
+async function updateUserGithub(user, github, githubId) {
+    let updatedUser;
+    if (user) {
+        if (githubId !== user.githubId) {
+            updatedUser = await User.findOneAndUpdate({ github }, { githubId });
+        } else if (github !== user.github) {
+            updatedUser = await User.findOneAndUpdate({ githubId }, { github });
+        }
+    }
+    return updatedUser;
+}
+
+async function findOrCreateUser(github, githubId, displayName, _json) {
+    let user = await User.findOne({ github });
+
+    if (!user) user = await User.findOne({ githubId });
+
+    if (user) {
+        // update github field if needed
+        user = await updateUserGithub(user, github, githubId);
+    } else {
+        const [givenName = '', familyName = ''] = displayName.split(' ');
+        user = await User.create({
+            github,
+            githubId,
+            givenName,
+            familyName,
+            picture: _json.avatar_url,
+        });
+    }
+
+    return user;
+}
+
 /* eslint prefer-arrow-callback: 0 */
 passport.use(
     new GithubStrategy(
@@ -66,18 +100,15 @@ passport.use(
         async function verify(accessToken, refreshToken, profile, done) {
             try {
                 // Get user's email from profile
-                const { profileUrl, displayName } = profile;
 
-                let user = await User.findOne({ github: profileUrl });
+                const { profileUrl, displayName, id, _json } = profile;
 
-                if (!user) {
-                    user = new User({
-                        github: profileUrl,
-                        given_name: displayName.split(' ')[0] || '',
-                        family_name: displayName.split(' ')[1] || '',
-                    });
-                    await user.save();
-                }
+                const user = await findOrCreateUser(
+                    profileUrl,
+                    id,
+                    displayName,
+                    _json,
+                );
 
                 done(null, user);
             } catch (err) {
@@ -96,10 +127,9 @@ passport.use(
                 if (!user)
                     return done(null, false, { message: 'Incorrect email' });
 
-                const passwordCorrect = await bcrypt.compare(
-                    password,
-                    user.passwordHash,
-                );
+                const passwordCorrect = user.passwordHash
+                    ? bcrypt.compare(password, user.passwordHash)
+                    : false;
                 if (!passwordCorrect)
                     return done(null, false, { message: 'Incorrect password' });
 
