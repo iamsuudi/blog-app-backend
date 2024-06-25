@@ -41,12 +41,12 @@ const signup = async (req, res, next) => {
         Number(config.SALT_ROUNDS),
     );
 
-    const user = await User.create({
+    await User.create({
         email,
         passwordHash,
     });
 
-    next(user);
+    next();
 };
 
 const status = async (req, res) => {
