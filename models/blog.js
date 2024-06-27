@@ -9,7 +9,7 @@ const blogSchema = mongoose.Schema({
     url: String,
     date: Date,
     thumbnail: String,
-    tags: [{ content: String, id: String }],
+    tags: [{ content: String }],
     likes: { type: Number, default: 0 },
     user: {
         type: mongoose.Schema.Types.ObjectId,

@@ -61,7 +61,7 @@ const updateBlog = async (req, res) => {
     const { blogId } = req.params;
     const update = req.body;
 
-    const blog = await Blog.findById({ blogId });
+    const blog = await Blog.findById(blogId);
 
     if (user._id.toString() !== blog.user.toString()) {
         return res.status(401).json({ error: 'Unauthorized' });
@@ -69,7 +69,7 @@ const updateBlog = async (req, res) => {
 
     const updatedBlog = await Blog.findByIdAndUpdate(blogId, update);
 
-    return res.json(updatedBlog.toJSON());
+    return res.json(updatedBlog);
 };
 
 module.exports = {
