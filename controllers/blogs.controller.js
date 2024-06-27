@@ -14,22 +14,13 @@ const getAllBlogs = async (req, res) => {
 };
 
 const createBlog = async (req, res) => {
-    const { title, author, url } = req.body;
     const { user } = req;
 
     const savedBlog = await Blog.create({
-        title,
-        author,
-        url,
+        ...req.body,
+        date: new Date(),
         user: user._id,
     });
-
-    /*     await User.findByIdAndUpdate(req.user, {
-        username: user.username,
-        name: user.name,
-        passwordHash: user.passwordHash,
-        blogs: user.blogs.concat(savedBlog._id),
-    }); */
 
     res.status(201).json(savedBlog);
 };
