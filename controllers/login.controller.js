@@ -51,8 +51,6 @@ const signup = async (req, res, next) => {
 
 const status = async (req, res) => {
     logger.info('Inside suth status end point');
-    logger.info(req.user);
-    logger.info(req.session);
     return req.user
         ? res.status(200).json(req.user)
         : res.status(401).send('Unauthorized');

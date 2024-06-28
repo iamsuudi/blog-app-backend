@@ -1,4 +1,5 @@
 const Blog = require('../models/blog');
+const logger = require('../utils/logger');
 
 const getAllBlogs = async (req, res) => {
     const { user } = req;
@@ -72,10 +73,19 @@ const updateBlog = async (req, res) => {
     return res.json(updatedBlog);
 };
 
+const updateThumbnail = async (req, res) => {
+    const { blogId } = req.params;
+    const { thumbnail } = req;
+    const blog = await Blog.findByIdAndUpdate(blogId, { thumbnail });
+    logger.info('Thumbnail uploaded and updated successfully');
+    res.status(204).json(blog);
+};
+
 module.exports = {
     updateBlog,
     deleteBlog,
     getBlog,
     createBlog,
     getAllBlogs,
+    updateThumbnail,
 };

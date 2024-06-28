@@ -38,6 +38,7 @@ app.use(
 );
 app.use(express.static('dist'));
 app.use(express.static('blogThumbnails'));
+app.use(express.static('userAvatars'));
 app.use(express.json());
 app.use(
     session({

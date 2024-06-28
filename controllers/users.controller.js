@@ -1,4 +1,5 @@
 const User = require('../models/user');
+const logger = require('../utils/logger');
 
 const getAllUsers = async (req, res) => {
     const users = await User.find({});
@@ -35,10 +36,21 @@ const getUser = async (req, res) => {
     return res.status(204).json(user);
 };
 
+const updateAvatar = async (req, res) => {
+    const { user } = req;
+    const { avatar } = req;
+    const updatedUser = await User.findByIdAndUpdate(user._id, {
+        picture: avatar,
+    });
+    logger.info('Avatar uploaded and updated successfully');
+    res.status(204).json(updatedUser);
+};
+
 module.exports = {
     getAllUsers,
     getMe,
     updateMe,
     deleteMe,
     getUser,
+    updateAvatar,
 };
