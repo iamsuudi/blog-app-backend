@@ -10,20 +10,6 @@ loginRouter.post(
     loginController.authResponse,
 );
 
-loginRouter.get('/login/failed', (req, res) => {
-    res.status(401).json({
-        success: false,
-        message: 'failed',
-    });
-});
-
-loginRouter.get('/login/success', (req, res) => {
-    res.status(401).json({
-        success: true,
-        message: 'success',
-    });
-});
-
 loginRouter.get(
     '/auth/signin/google',
     passport.authenticate('google', { scope: ['profile', 'email'] }),
@@ -33,7 +19,7 @@ loginRouter.get(
     '/auth/google/redirect',
     passport.authenticate('google', {
         successRedirect: 'http://localhost:5173/auth/signin',
-        failureRedirect: '/login/failed',
+        failureRedirect: 'http://localhost:5173/auth/signin',
     }),
     loginController.authResponse,
 );
@@ -47,7 +33,7 @@ loginRouter.get(
     '/auth/github/redirect',
     passport.authenticate('github', {
         successRedirect: 'http://localhost:5173/auth/signin',
-        failureRedirect: '/login/failed',
+        failureRedirect: 'http://localhost:5173/auth/signin',
     }),
     loginController.authResponse,
 );

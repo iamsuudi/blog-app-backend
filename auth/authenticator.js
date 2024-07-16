@@ -58,10 +58,16 @@ passport.use(
 async function updateUserGithub(user, github, githubId) {
     let updatedUser;
     if (user) {
+        logger.info('checking github');
         if (githubId !== user.githubId) {
+            logger.info('user has changed their github account');
             updatedUser = await User.findOneAndUpdate({ github }, { githubId });
         } else if (github !== user.github) {
+            logger.info('user has changed their github username');
             updatedUser = await User.findOneAndUpdate({ githubId }, { github });
+        } else {
+            logger.info('user github is fine');
+            return user;
         }
     }
     return updatedUser;
@@ -74,8 +80,11 @@ async function findOrCreateUser(github, githubId, displayName, _json) {
 
     if (user) {
         // update github field if needed
+        logger.info('user is found');
         user = await updateUserGithub(user, github, githubId);
+        logger.info('user github fixed if needed');
     } else {
+        logger.info('user is new');
         const [givenName = '', familyName = ''] = displayName.split(' ');
         user = await User.create({
             github,
@@ -84,6 +93,7 @@ async function findOrCreateUser(github, githubId, displayName, _json) {
             familyName,
             picture: _json.avatar_url,
         });
+        logger.info('new account created');
     }
 
     return user;
@@ -110,6 +120,7 @@ passport.use(
                     displayName,
                     _json,
                 );
+                logger.info(user);
 
                 done(null, user);
             } catch (err) {
