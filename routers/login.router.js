@@ -32,7 +32,7 @@ loginRouter.get(
 loginRouter.get(
     '/auth/google/redirect',
     passport.authenticate('google', {
-        successRedirect: 'http://localhost:5173/auth/status',
+        successRedirect: 'http://localhost:5173/auth/signin',
         failureRedirect: '/login/failed',
     }),
     loginController.authResponse,
@@ -46,7 +46,7 @@ loginRouter.get(
 loginRouter.get(
     '/auth/github/redirect',
     passport.authenticate('github', {
-        successRedirect: 'http://localhost:5173/auth/status',
+        successRedirect: 'http://localhost:5173/auth/signin',
         failureRedirect: '/login/failed',
     }),
     loginController.authResponse,
@@ -59,8 +59,6 @@ loginRouter.post(
     loginController.authResponse,
 );
 
-/* eslint consistent-return: 0 */
-loginRouter.get('/auth/status', loginController.status);
 loginRouter.post('/auth/logout', loginController.logout);
 
 module.exports = loginRouter;

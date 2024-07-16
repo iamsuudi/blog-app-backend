@@ -8,13 +8,13 @@ const logger = require('../utils/logger');
 const config = require('../utils/config');
 
 passport.serializeUser((user, done) => {
-    logger.info('Inside serializer');
+    // logger.info('Inside serializer');
     done(null, user.id);
 });
 
 passport.deserializeUser(async (id, done) => {
     try {
-        logger.info('Inside deserializer');
+        // logger.info('Inside deserializer');
         const user = await User.findById(id);
         done(null, user);
     } catch (error) {
@@ -102,6 +102,7 @@ passport.use(
                 // Get user's email from profile
 
                 const { profileUrl, displayName, id, _json } = profile;
+                logger.info('authenticating with github');
 
                 const user = await findOrCreateUser(
                     profileUrl,

@@ -32,7 +32,7 @@ const app = express();
 
 app.use(
     cors({
-        origin: 'http://localhost:5173', // React app's URL
+        origin: 'http://localhost:5173',
         credentials: true,
     }),
 );
@@ -60,6 +60,11 @@ app.use(requestLogger);
 require('./auth/authenticator');
 
 app.use('/api', userRouter, blogRouter, loginRouter);
+app.get('/api/me', (req, res) =>
+    req.user
+        ? res.status(200).json(req.user)
+        : res.status(401).json({ message: 'Not authenticated' }),
+);
 
 app.use(unknownEndpoint);
 app.use(errorHandler);

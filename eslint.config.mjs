@@ -21,7 +21,11 @@ export default [
     {
         files: ['**/*.js'],
         languageOptions: { sourceType: 'commonjs' },
-        rules: { indent: 0, 'no-underscore-dangle': 0 },
+        rules: {
+            indent: 0,
+            'no-underscore-dangle': 0,
+            'consistent-return': 'off',
+        },
     },
     {
         ignores: ['*.config.*', 'dist/*'],
